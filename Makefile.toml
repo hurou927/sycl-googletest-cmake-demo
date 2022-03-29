@@ -1,0 +1,29 @@
+[config]
+skip_core_tasks = true
+
+[tasks.build]
+script = '''
+#!/bin/bash
+set -euxo pipefail
+
+cmake -S . -B build
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1  --build build
+cmake --build build
+cp ./build/compile_commands.json ./
+'''
+
+[tasks.test]
+dependencies = ["build"]
+script = '''
+#!/bin/bash
+set -euxo pipefail
+
+cd build
+ctest -V
+'''
+
+[tasks.clean]
+script = 'rm -rf ./build ./compile_commands.json'
+
+[tasks.clean-build]
+dependencies = [ "clean", "build" ]
